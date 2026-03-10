@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.tgz
+.DS_Store
+
+# Test scratch files
+test-*.cjs
+test-*.mjs
+test*.mjs
+
+# Session logs
+SESSION-*.md
