@@ -1,5 +1,9 @@
 # LightScout MCP
 
+[![npm version](https://img.shields.io/npm/v/lightscout-mcp.svg)](https://www.npmjs.com/package/lightscout-mcp)
+[![license](https://img.shields.io/npm/l/lightscout-mcp.svg)](https://github.com/bobbyrgoldsmith/lightscout-mcp/blob/main/LICENSE)
+[![node](https://img.shields.io/node/v/lightscout-mcp.svg)](https://nodejs.org)
+
 > **Part of the [TestScout MCP Suite](https://testscout.dev)** — AI-powered QA tools for modern development teams.
 
 Core Web Vitals analysis powered by Lighthouse. Runs as an MCP server for AI coding tools (Claude Code, Cursor, Windsurf, etc.) or as a standalone CLI for CI pipelines and terminals. Four tools: analyze a URL, compare two URLs, check against thresholds, or crawl an entire site.
