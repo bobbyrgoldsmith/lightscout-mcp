@@ -4,13 +4,18 @@ import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import type { Device, AnalysisResult, Recommendation, MetricKey } from "./types.js";
 import { getRating } from "./scoring.js";
+import { ensureCleanNodeModules } from "./finder-guard.js";
 
 const execFile = promisify(execFileCb);
 const require = createRequire(import.meta.url);
 
 // Resolve lighthouse CLI path from installed package
 const lhPkgPath = require.resolve("lighthouse/package.json");
-const lhCli = join(dirname(lhPkgPath), "cli", "index.js");
+const lhDir = dirname(lhPkgPath);
+const lhCli = join(lhDir, "cli", "index.js");
+
+// Finder artifact check runs once per process
+let nodeModulesChecked = false;
 
 // Semaphore for concurrency control (default: 3 parallel runs)
 const MAX_CONCURRENCY = 3;
@@ -56,6 +61,11 @@ export async function runLighthouse(
   device: Device = "mobile",
   categories: string[] = ["performance"]
 ): Promise<AnalysisResult> {
+  if (!nodeModulesChecked) {
+    await ensureCleanNodeModules(lhDir);
+    nodeModulesChecked = true;
+  }
+
   await acquireSlot();
 
   try {
@@ -147,6 +157,14 @@ export async function runLighthouse(
   } catch (err: any) {
     // Contextual error messages
     if (err.killed || err.signal === "SIGTERM") {
+      // Re-scan for Finder artifacts on timeout — they cause ESM loader deadlocks
+      const guard = await ensureCleanNodeModules(lhDir);
+      nodeModulesChecked = false; // force re-check on next run
+      if (guard.cleaned) {
+        throw new Error(
+          `Lighthouse timed out — found macOS Finder artifacts in node_modules. Cleaned automatically; retry should work. To prevent: don't open node_modules in Finder.`
+        );
+      }
       throw new Error(`Lighthouse timed out analyzing ${url}`);
     }
     if (err.code === "ENOENT") {

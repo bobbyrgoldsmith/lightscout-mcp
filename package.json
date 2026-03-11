@@ -1,6 +1,6 @@
 {
   "name": "lightscout-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "MCP server for Core Web Vitals analysis powered by Lighthouse. Part of the TestScout MCP Suite.",
   "type": "module",
   "bin": {
@@ -16,6 +16,7 @@
     "dev": "tsup --watch",
     "verify": "node -e \"require('lighthouse/package.json'); require('tsup/package.json'); console.log('deps ok')\"",
     "test": "vitest run",
+    "postinstall": "node -e \"require('fs').writeFileSync('node_modules/.metadata_never_index','')\"",
     "prepublishOnly": "npm run build"
   },
   "keywords": [

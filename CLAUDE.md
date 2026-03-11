@@ -58,8 +58,13 @@ MCP: Server responds to JSON-RPC over stdio. `initialize` → server info, `tool
 CLI: `node dist/cli.js analyze https://example.com` → JSON to stdout. All 4 commands verified March 10.
 Lighthouse subprocess requires Chrome installed. The CLI manages Chrome lifecycle internally.
 
-## Known Issue: macOS Finder Artifacts
-Finder can create duplicate dirs with spaces (e.g. `lighthouse 2/`) inside `node_modules` when browsing in Finder. These break `rm -rf` and `yarn install`. Fix: `yarn clean && yarn install`. Avoid opening `node_modules` in Finder.
+## macOS Finder Artifact Mitigation (v0.1.2)
+Finder creates duplicate dirs with spaces (e.g. `lighthouse 2/`) inside `node_modules` when browsing in Finder. These corrupt the dependency tree and cause Lighthouse subprocess hangs via Node 22 ESM loader deadlock.
+
+**Three-layer defense:**
+1. **Runtime guard** (`src/lib/finder-guard.ts`) — `ensureCleanNodeModules()` runs once before first Lighthouse spawn. Scans `node_modules/` root + `node_modules/lighthouse/` for entries matching `/^.+ \d+$/`, removes them with `fs.rm`. If timeout occurs, re-scans and provides specific error message.
+2. **`.metadata_never_index`** — Postinstall script creates this file in `node_modules/` to discourage Spotlight/Finder indexing.
+3. **Manual fallback** — `yarn clean && yarn install` still works. Avoid opening `node_modules` in Finder.
 
 ## Repair Log — March 6, 2026: ESM Deadlock Fix
 
