@@ -1,15 +1,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { analyzePerformance } from "./tools/analyze.js";
-import { comparePerformance } from "./tools/compare.js";
-import { checkThreshold } from "./tools/check.js";
-import { crawlSite } from "./tools/crawl.js";
 
-const server = new McpServer({
-  name: "lightscout-mcp",
-  version: "0.1.0",
-});
+function createServer() {
+  const server = new McpServer({
+    name: "lightscout-mcp",
+    version: "0.1.0",
+  });
 
 server.tool(
   "analyze_performance",
@@ -29,6 +26,7 @@ server.tool(
   },
   async (args) => {
     try {
+      const { analyzePerformance } = await import("./tools/analyze.js");
       const result = await analyzePerformance(args);
       return {
         content: [{ type: "text", text: JSON.stringify(result) }],
@@ -62,6 +60,7 @@ server.tool(
   },
   async (args) => {
     try {
+      const { comparePerformance } = await import("./tools/compare.js");
       const result = await comparePerformance(args);
       return {
         content: [{ type: "text", text: JSON.stringify(result) }],
@@ -103,6 +102,7 @@ server.tool(
   },
   async (args) => {
     try {
+      const { checkThreshold } = await import("./tools/check.js");
       const result = await checkThreshold(args);
       return {
         content: [{ type: "text", text: JSON.stringify(result) }],
@@ -132,6 +132,7 @@ server.tool(
   },
   async (args) => {
     try {
+      const { crawlSite } = await import("./tools/crawl.js");
       const result = await crawlSite(args);
       const { results: _full, ...condensed } = result;
       return {
@@ -146,7 +147,16 @@ server.tool(
   }
 );
 
+  return server;
+}
+
+// Smithery sandbox scanning — returns server without connecting transport
+export function createSandboxServer() {
+  return createServer();
+}
+
 async function main() {
+  const server = createServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
