@@ -8,6 +8,10 @@
 
 Core Web Vitals analysis powered by Lighthouse. Runs as an MCP server for AI coding tools (Claude Code, Cursor, Windsurf, etc.) or as a standalone CLI for CI pipelines and terminals. Four tools: analyze a URL, compare two URLs, check against thresholds, or crawl an entire site.
 
+<a href="https://glama.ai/mcp/servers/bobbyrgoldsmith/light-scout-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/bobbyrgoldsmith/light-scout-mcp/badge" alt="LightScout MCP server" />
+</a>
+
 ## Requirements
 
 - Node.js >= 18
